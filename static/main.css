@@ -1,0 +1,215 @@
+@import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:400);
+
+:root {
+    --neck-color: #a57a39;
+    --neck-width: 100vw;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+body {
+    background: #eee;
+    font-family: 'Source Sans Pro', sans-serif;
+    letter-spacing: 0.05em;
+    overflow-x: hidden;
+}
+
+.guitar-neck {
+    position: relative;
+    margin-top: 5vh;
+    margin-left: 0vw;
+    width: 100vw;
+    /* height: 100vh; defined dynamically */
+    background: var(--neck-color);
+    box-shadow: inset -0.1vh 0vh 5vh 0vh rgba(0, 0, 0, 0.75);
+
+    .open-notes {
+        position: absolute;
+        top: 2vh;
+        bottom: 2vh;
+        left: 0.5vw;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: flex-start;
+
+        li {
+            font-size: 5vh;
+            color: #fff;
+
+            &.active {
+                color: #fa990f;
+            }
+        }
+    }
+
+    .frets {
+        width: 95%;
+        height: 100%;
+        position: absolute;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+
+        li {
+            width: 0.6%;
+            height: 100%;
+            background: #d7d6d6;
+            border-right: 0.35vw solid #686868;
+        }
+
+        li:first-child {
+            width: 4.3%;
+            background: #211f1d;
+        }
+    }
+
+    .dots {
+        position: absolute;
+        width: 55%;
+        top: 46%;
+        left: 21.5%;
+        height: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+
+        li {
+            width: 5vh;
+            height: 5vh;
+            border-radius: 50%;
+            background: #383530;
+            margin-right: 13.2%;
+        }
+    }
+
+    .double-dots {
+        position: absolute;
+        top: 29%;
+        left: 89.5%;
+        /* height: 100vh; defined dynamically */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: flex-start;
+
+        li {
+            width: 5vh;
+            height: 5vh;
+            border-radius: 50%;
+            background: #383530;
+            margin-right: 13.2%;
+        }
+    }
+
+    .strings {
+        position: absolute;
+        top: 5vh;
+        bottom: 5vh;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: flex-start;
+
+        li {
+            width: 100%;
+            background: #c8bb93;
+            border-bottom: 0.2vh solid #958963;
+            box-sizing: border-box;
+        }
+
+        li:nth-child(1) {
+            height: 0.3vh;
+        }
+
+        li:nth-child(2) {
+            height: 0.3vh;
+        }
+
+        li:nth-child(3) {
+            height: 0.3vh;
+        }
+
+        li:nth-child(4) {
+            height: 0.4vh;
+        }
+
+        li:nth-child(5) {
+            height: 0.4vh;
+        }
+
+        li:nth-child(6) {
+            height: 0.5vh;
+        }
+
+        li:nth-child(7) {
+            height: 0.5vh;
+        }
+
+        li:nth-child(8) {
+            height: 0.5vh;
+        }
+
+        li:nth-child(9) {
+            height: 0.5vh;
+        }
+
+        li:nth-child(10) {
+            height: 0.5vh;
+        }
+    }
+
+    .notes {
+        position: absolute;
+        top: 3vh;
+        bottom: 3vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: flex-start;
+        width: 95.7%;
+
+        li {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        li div {
+            width: 5.5vh;
+            height: 5.5vh;
+            background: #fa990f;
+            color: #000000;
+            border-radius: 50%;
+            text-align: center;
+            font-size: 4.5vh;
+            font-weight: 600;
+            font-family: Tahoma;
+            line-height: 4.5vh;
+            box-shadow: 0vh 1.5vh 2.5vh 0vh rgba(75, 37, 4, 0.75);
+        }
+
+        li div:first-child {
+            margin-left: 3%;
+        }
+    }
+}
+
+.controls {
+    position: relative;
+    margin-top: 5vh;
+    margin-bottom: 5vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: center;
+}

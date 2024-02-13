@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+
+<html>
+<link rel="shortcut icon" href="#">
+<link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+
+<body>
+    {% set height = 90 * nb_strings / 10%}
+    <div class="guitar-neck" style="height: {{height}}vh">
+
+
+        <ul class="frets">
+            {% for i in range(13) %}
+            <li class="fret-{{loop.index0}}"></li>
+            {% endfor %}
+        </ul>
+
+        <ul class="dots">
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+
+        {% set dots_height = 37 * nb_strings / 10%}
+        <ul class="double-dots" style="height: {{dots_height}}vh">
+            <li></li>
+            <li></li>
+        </ul>
+
+        <ul class="strings">
+            {% for note in tuning[::-1] %}
+            <li></li>
+            {% endfor %}
+        </ul>
+
+        <ul class="open-notes">
+            {% for note in tuning[::-1] %}
+            <li class="string-#{{loop.index0}}">{{ note }}</li>
+            {% endfor %}
+        </ul>
+
+        <ul class="notes">
+            {% for string_notes in fretboard_data[::-1] %}
+            <li>
+                {% for note in string_notes %}
+                {% if note is not none %}
+                <div>{{ note }}</div>
+                {% else %}
+                <div style="visibility: hidden;"></div>
+                {% endif %}
+                {% endfor %}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="controls">
+        <ul>
+            <form method="POST" action="/">
+                <select id="keysDropdown" name="key" style="font-size: 4vh">
+                    {% for key in keys %}
+                    <option value="{{ key }}" {% if current_key==key %}selected{% endif %}>{{ key }}</option>
+                    {% endfor %}
+                </select>
+                <input type="submit" value="Update" style="font-size: 4vh">
+            </form>
+            <button id="fullscreen-button" style="font-size: 4vh">Fullscreen</button>
+        </ul>
+    </div>
+
+    <!-- <script src=" https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> -->
+
+    <script>
+        const fullscreenButton = document.getElementById('fullscreen-button');
+
+        fullscreenButton.addEventListener('click', () => {
+            try {
+                if (!document.fullscreenElement) {
+                    if (document.documentElement.requestFullscreen) {
+                        document.documentElement.requestFullscreen();
+                    } else if (document.documentElement.mozRequestFullScreen) {
+                        document.body.mozRequestFullScreen();
+                    } else if (document.documentElement.webkitRequestFullscreen) {
+                        document.documentElement.webkitRequestFullscreen();
+                    } else if (document.msRequestFullscreen) {
+                        document.documentElement.msRequestFullscreen();
+                    }
+                }
+                else {
+                    document.exitFullscreen();
+                }
+            } catch (error) {
+                console.error('Fullscreen request failed.', error);
+            }
+        });
+    </script>
+
+</body>
+
+</html>
