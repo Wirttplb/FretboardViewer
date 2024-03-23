@@ -2,11 +2,49 @@ from __future__ import annotations
 from typing import Optional, Any
 from copy import copy
 
+from fretboard.chords import Voicing
+
+E9_STANDARD_COPEDANT_NAMES = ["A", "B", "C", "D", "E", "E", "G", "A/2", "D/2"]
+
+
+class Pedal:
+    """Class representing a pedal associated to a tuning"""
+
+    name: str = ""  # name of pedal or lever (commonly: "A", "B", "C", "E", "G", "F", "D"...)
+    changes: list[tuple[int, int]] = []  # string number (from bottom, 0 to n) and interval (like +1, +2, -1 etc...)
+
+    @staticmethod
+    def init_from_name(name: str) -> Pedal:
+        pedal = Pedal()
+        pedal.name = name
+
+        if name == "A":
+            pedal.changes = [(0, 2), (5, 2)]
+        if name == "A/2":
+            pedal.changes = [(0, 1), (5, 1)]
+        if name == "B":
+            pedal.changes = [(4, 1), (7, 1)]
+        if name == "C":
+            pedal.changes = [(5, 2), (6, 2)]
+        if name == "E":
+            pedal.changes = [(2, -1), (6, -1)]
+        if name == "F":
+            pedal.changes = [(2, 1), (6, 1)]
+        if name == "G":
+            pedal.changes = [(3, 1), (9, 1)]
+        if name == "D":
+            pedal.changes = [(1, -1), (8, -2)]
+        if name == "D/2":
+            pedal.changes = [(8, -1)]
+
+        return pedal
+
 
 class Fretboard:
     """Class representing a fretboard"""
 
-    tuning: list[int]  # notes are represented as integers from 0 to 11
+    tuning: list[int] = []  # notes are represented as integers from 0 to 11
+    pedals: list[Pedal] = []  # pedals (or levers)
 
     def __init__(self, tuning: list[int]):
         self.tuning = tuning
@@ -26,7 +64,11 @@ class Fretboard:
 
     @staticmethod
     def init_as_pedal_steel_e9() -> Fretboard:
-        return Fretboard.init_from_tuning(["B", "D", "E", "F#", "G#", "B", "E", "G#", "D#", "F#"])
+        fretboard = Fretboard.init_from_tuning(["B", "D", "E", "F#", "G#", "B", "E", "G#", "D#", "F#"])
+        for pedal in E9_STANDARD_COPEDANT_NAMES:
+            fretboard.pedals.append(Pedal.init_from_name(pedal))
+
+        return fretboard
 
     def get_tuning_as_str(self, as_sharps: bool = True) -> list[str]:
         return convert_int_notes_to_str(self.tuning, as_sharps)
@@ -45,7 +87,7 @@ class Fretboard:
         return all_notes
 
     def generate_major_scale_as_integers(self, key: str, start_fret: int, end_fret: int) -> list[list[Optional[int]]]:
-        """Generate major scale notes for given key"""
+        """Generate major scale notes for given key ; a fretboard scale contains a string scale for each string (Optional ints)"""
         key_as_int = convert_str_note_to_int(key)
         fretboard = self.generate_fretboard(start_fret, end_fret)
         intervals = [0, 2, 4, 5, 7, 9, 11]
@@ -66,15 +108,50 @@ class Fretboard:
 
         return self.convert_fretboard_scale_to_intervals(key, fretboard_scale)
 
+    def generate_voicing(self, voicing: Voicing) -> list[list[Optional[int]]]:
+        base_key_as_int = convert_str_note_to_int("C")
+        fretboard_scale: list[list[Optional[int]]] = []
+        fretboard = self.generate_fretboard(0, 12)
+
+        if len(fretboard) != len(voicing.notes):
+            raise ValueError("Voicing and tuning do not match!")
+
+        for string_i, string_notes in enumerate(fretboard):  # loop on all strings
+            string_scale = []
+            voicing_fret = voicing.notes[string_i]
+
+            for string_note in string_notes:  # loop on all frets
+                string_scale.append(None)
+
+                if voicing_fret != None:
+                    voicing_note = (voicing_fret + self.tuning[string_i]) % 12
+
+                    if voicing_note == string_note:
+                        voicing_note_in_key = (voicing_note - base_key_as_int) % 12  # output with respect to C
+                        string_scale[-1] = voicing_note_in_key
+
+            fretboard_scale.append(string_scale)
+
+        return fretboard_scale
+
     @staticmethod
-    def convert_fretboard_scale_to_intervals(key: str, fretboard_scale: list[list[Optional[int]]]) -> list[list[Optional[str]]]:
+    def convert_fretboard_scale_to_intervals(key: str, fretboard_scale: list[list[Optional[int]]], pedals_to_apply: Optional[list[Pedal]] = None) -> list[list[Optional[str]]]:
         fretboard_scale_as_intervals: list[Any] = copy(fretboard_scale)
         key_as_int = convert_str_note_to_int(key)
 
-        for string_scale in fretboard_scale_as_intervals:
+        for i_string, string_scale in enumerate(fretboard_scale_as_intervals):
             for i_fret, note in enumerate(string_scale):
                 if note is not None:
-                    interval = (note - key_as_int) % 12 + 1
+
+                    # apply shift from pedal
+                    actual_note = note
+                    if pedals_to_apply:
+                        for pedal in pedals_to_apply:
+                            for change in pedal.changes:
+                                if change[0] == i_string:
+                                    actual_note += change[1]
+
+                    interval = (actual_note - key_as_int) % 12 + 1
                     string_scale[i_fret] = convert_int_interval_to_str(interval)
 
         return fretboard_scale_as_intervals

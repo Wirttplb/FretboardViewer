@@ -1,0 +1,19 @@
+Competition:
+Steel Sidekick
+Pedal Steel
+
+Web app, to be packaged into phone apps
+Frameworks to consider:
+Apache Cordova
+Capacitor
+
+Or even better, a Progressive Web App?
+https://web.dev/articles/what-are-pwas
+
+//////////////////////////
+Features:
+
+fretboard viewer for:
+scales,
+chords (generated + manually entered read from file),
+any tuning
