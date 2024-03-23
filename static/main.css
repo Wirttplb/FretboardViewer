@@ -213,3 +213,19 @@ body {
     justify-content: space-between;
     text-align: center;
 }
+
+.pedals {
+    margin-top: -5vh;
+    margin-left: 87vw;
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+    text-align: right;
+
+    li {
+        font-family: Tahoma;
+        font-size: 10vh;
+        color: #29ff69;
+    }
+}

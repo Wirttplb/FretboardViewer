@@ -53,6 +53,12 @@
             </li>
             {% endfor %}
         </ul>
+
+        <ul class="pedals">
+            {% for pedal in pedals_to_apply %}
+            <li class="pedal-#{{loop.index0}}">{{ pedal }}</li>
+            {% endfor %}
+        </ul>
     </div>
 
     <div class="controls">
