@@ -3,41 +3,8 @@ from typing import Optional, Any
 from copy import copy
 
 from fretboard.chords import Voicing
-
-E9_STANDARD_COPEDANT_NAMES = ["A", "B", "C", "D", "E", "E", "G", "A/2", "D/2"]
-
-
-class Pedal:
-    """Class representing a pedal associated to a tuning"""
-
-    name: str = ""  # name of pedal or lever (commonly: "A", "B", "C", "E", "G", "F", "D"...)
-    changes: list[tuple[int, int]] = []  # string number (from bottom, 0 to n) and interval (like +1, +2, -1 etc...)
-
-    @staticmethod
-    def init_from_name(name: str) -> Pedal:
-        pedal = Pedal()
-        pedal.name = name
-
-        if name == "A":
-            pedal.changes = [(0, 2), (5, 2)]
-        if name == "A/2":
-            pedal.changes = [(0, 1), (5, 1)]
-        if name == "B":
-            pedal.changes = [(4, 1), (7, 1)]
-        if name == "C":
-            pedal.changes = [(5, 2), (6, 2)]
-        if name == "E":
-            pedal.changes = [(2, -1), (6, -1)]
-        if name == "F":
-            pedal.changes = [(2, 1), (6, 1)]
-        if name == "G":
-            pedal.changes = [(3, 1), (9, 1)]
-        if name == "D":
-            pedal.changes = [(1, -1), (8, -2)]
-        if name == "D/2":
-            pedal.changes = [(8, -1)]
-
-        return pedal
+from fretboard.pedal import Pedal, E9_PEDAL_CHANGES
+from fretboard.notes_utils import convert_str_note_to_int, convert_str_notes_to_int, convert_int_notes_to_str, convert_int_interval_to_str
 
 
 class Fretboard:
@@ -65,13 +32,16 @@ class Fretboard:
     @staticmethod
     def init_as_pedal_steel_e9() -> Fretboard:
         fretboard = Fretboard.init_from_tuning(["B", "D", "E", "F#", "G#", "B", "E", "G#", "D#", "F#"])
-        for pedal in E9_STANDARD_COPEDANT_NAMES:
+        for pedal in E9_PEDAL_CHANGES.keys():
             fretboard.pedals.append(Pedal.init_from_name(pedal))
 
         return fretboard
 
     def get_tuning_as_str(self, as_sharps: bool = True) -> list[str]:
         return convert_int_notes_to_str(self.tuning, as_sharps)
+
+    def get_pedals_as_str(self) -> list[str]:
+        return [pedal.name for pedal in self.pedals]
 
     def generate_fretboard(self, start_fret: int, end_fret: int) -> list[list[int]]:
         """Generate notes for the fretboard between given frets"""
@@ -134,6 +104,30 @@ class Fretboard:
 
         return fretboard_scale
 
+    def get_all_pedal_combinations(self) -> list[list[str]]:
+        return Pedal.get_all_pedal_combinations([pedal.name for pedal in self.pedals])
+
+    def get_intervals_at_fret(self, fret: int, pedals: list[Pedal], key: str = "E") -> list[int]:
+        """Get notes as interval (as int) at given fret with given pedals applied
+
+        Args:
+            fret (int): fret number
+            pedals (list[Pedal]): pedals to apply
+
+        Returns:
+            list[int]: notes at fret
+        """
+        key_as_int = convert_str_note_to_int(key)
+        pedals_as_str = self.get_pedals_as_str()
+        intervals_at_fret = [(open_note + fret - key_as_int) % 12 for open_note in self.tuning]
+        for pedal in pedals:
+            if pedal.name not in pedals_as_str:
+                raise ValueError("Invalid pedal")
+            for change in pedal.changes:
+                intervals_at_fret[change[0]] = (intervals_at_fret[change[0]] + change[1]) % 12
+
+        return intervals_at_fret
+
     @staticmethod
     def convert_fretboard_scale_to_intervals(key: str, fretboard_scale: list[list[Optional[int]]], pedals_to_apply: Optional[list[Pedal]] = None) -> list[list[Optional[str]]]:
         fretboard_scale_as_intervals: list[Any] = copy(fretboard_scale)
@@ -155,98 +149,3 @@ class Fretboard:
                     string_scale[i_fret] = convert_int_interval_to_str(interval)
 
         return fretboard_scale_as_intervals
-
-
-def convert_str_notes_to_int(notes: list[str]) -> list[int]:
-    return [convert_str_note_to_int(note) for note in notes]
-
-
-def convert_int_notes_to_str(notes: list[int], as_sharps: bool = False) -> list[str]:
-    return [convert_int_note_to_str(note, as_sharps) for note in notes]
-
-
-def convert_str_note_to_int(note: str) -> int:
-    if note == "C":
-        return 0
-    elif note == "C#" or note == "Db":
-        return 1
-    elif note == "D":
-        return 2
-    elif note == "D#" or note == "Eb":
-        return 3
-    elif note == "E":
-        return 4
-    elif note == "F":
-        return 5
-    elif note == "F#" or note == "Gb":
-        return 6
-    elif note == "G":
-        return 7
-    elif note == "G#" or note == "Ab":
-        return 8
-    elif note == "A":
-        return 9
-    elif note == "A#" or note == "Bb":
-        return 10
-    elif note == "B":
-        return 11
-
-    raise ValueError("Invalid note!")
-
-
-def convert_int_note_to_str(note: int, as_sharps: bool = False) -> str:
-    if note == 0:
-        return "C"
-    elif note == 1:
-        return "Db" if not as_sharps else "C#"
-    elif note == 2:
-        return "D"
-    elif note == 3:
-        return "Eb" if not as_sharps else "D#"
-    elif note == 4:
-        return "E"
-    elif note == 5:
-        return "F"
-    elif note == 6:
-        return "Gb" if not as_sharps else "F#"
-    elif note == 7:
-        return "G"
-    elif note == 8:
-        return "Ab" if not as_sharps else "G#"
-    elif note == 9:
-        return "A"
-    elif note == 10:
-        return "Bb" if not as_sharps else "A#"
-    elif note == 11:
-        return "B"
-
-    raise ValueError("Invalid note!")
-
-
-def convert_int_interval_to_str(note: int) -> str:
-    if note == 1:
-        return "1"
-    elif note == 2:
-        return "b2"
-    elif note == 3:
-        return "2"
-    elif note == 4:
-        return "b3"
-    elif note == 5:
-        return "3"
-    elif note == 6:
-        return "4"
-    elif note == 7:
-        return "b5"
-    elif note == 8:
-        return "5"
-    elif note == 9:
-        return "b6"
-    elif note == 10:
-        return "6"
-    elif note == 11:
-        return "b7"
-    elif note == 12:
-        return "7"
-
-    raise ValueError("Invalid interval!")
