@@ -118,3 +118,19 @@ class ChordGenerator:
             chords[key].voicings = chord_generator.generate_voicings(value, key_as_str)
 
         return chords
+
+    @staticmethod
+    def generate_open_e_chords(key_as_str: str) -> dict[str, Chord]:
+        """Return dict of open e chords with associated voicings
+
+        Returns:
+            dict[str, Chord]: chords
+        """
+        chord_generator = ChordGenerator(Fretboard.init_as_guitar_open_e())
+        chords: dict[str, Chord] = {}
+
+        for key, value in CHORD_FORMULAS.items():
+            chords[key] = Chord(key=key_as_str, type=key)
+            chords[key].voicings = chord_generator.generate_voicings(value, key_as_str)
+
+        return chords

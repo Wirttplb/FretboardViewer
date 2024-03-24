@@ -8,7 +8,22 @@ from fretboard.fretboard import Fretboard
 
 class TestChordGenerator(unittest.TestCase):
 
-    def test_chord_generator(self):
+    def test_open_e_chord_generator(self):
+        chords = ChordGenerator.generate_open_e_chords("E")
+
+        # Dump in json
+        fretboard = Fretboard.init_as_guitar_open_e()
+        path = Path("data/open_e_generated_chords.json")
+
+        with open(path, "w") as file:
+            json_dict = {}
+            json_dict["chords"] = []
+            for chord in chords.values():
+                json_dict["chords"].append(chord.to_json(fretboard.tuning))
+
+            json.dump(json_dict, file)
+
+    def test_e9_chord_generator(self):
         chords = ChordGenerator.generate_e9_chords("E")
         self.assertTrue("M" in chords)
         self.assertTrue(chords["M"].voicings[0].pedals == [])

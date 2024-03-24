@@ -77,7 +77,7 @@ def convert_int_interval_to_str(note: int) -> str:
 
 
 def convert_str_interval_to_int(interval: str) -> int:
-    interval_map = {"1": 0, "b2": 1, "2": 2, "b3": 3, "3": 4, "4": 5, "b5": 6, "5": 7, "#5": 7, "b6": 8, "6": 9, "bb7": 9, "b7": 10, "7": 11, "9": 2, "11": 5, "13": 9}
+    interval_map = {"1": 0, "b2": 1, "2": 2, "b3": 3, "3": 4, "4": 5, "b5": 6, "5": 7, "#5": 8, "b6": 8, "6": 9, "bb7": 9, "b7": 10, "7": 11, "9": 2, "11": 5, "13": 9}
 
     if interval in interval_map:
         return interval_map[interval]
