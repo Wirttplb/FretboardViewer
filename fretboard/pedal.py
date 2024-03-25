@@ -34,7 +34,7 @@ class Pedal:
     @staticmethod
     def get_all_pedal_combinations(pedals: list[str]) -> list[list[str]]:
         list = [[]]  # init with no pedal
-        for i in range(1, 4 - 1):
+        for i in range(1, 3 + 1):
             list += unique_combinations(pedals, i)
 
         # Delete impossible combinations
@@ -44,8 +44,10 @@ class Pedal:
                 ("A" in combination and "A/2" in combination)
                 or ("D" in combination and "D/2" in combination)
                 or ("A" in combination and "C" in combination)
+                or ("A/2" in combination and "C" in combination)
                 or ("E" in combination and "F" in combination)
                 or ("D" in combination and "G" in combination)
+                or ("D/2" in combination and "G" in combination)
             ):
                 to_delete.append(i)
 

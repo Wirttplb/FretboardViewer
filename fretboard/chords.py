@@ -1,5 +1,8 @@
 from __future__ import annotations
 from typing import Optional
+from pathlib import Path
+import json
+
 
 from fretboard.notes_utils import convert_int_interval_to_str, convert_str_note_to_int, MUTED_STRING_CHAR
 from fretboard.pedal import Pedal
@@ -23,6 +26,13 @@ class Voicing:
             voicing.notes.append(int(json_note) if json_note != MUTED_STRING_CHAR else None)
 
         return voicing
+
+    def get_number_of_notes(self) -> int:
+        n = 0
+        for note in self.notes:
+            if note is not None:
+                n += 1
+        return n
 
 
 class Chord:
@@ -64,5 +74,14 @@ class Chord:
             voicing_dict["intervals"] = [convert_int_interval_to_str(interval) if interval is not None else MUTED_STRING_CHAR for interval in voicing_dict["intervals"]]
 
             json_dict["voicings"].append(voicing_dict)
+
+        return json_dict
+
+    @staticmethod
+    def list_to_json(chords: dict[str, Chord], tuning: list[int]) -> dict:
+        json_dict = {}
+        json_dict["chords"] = []
+        for chord in chords.values():
+            json_dict["chords"].append(chord.to_json(tuning))
 
         return json_dict

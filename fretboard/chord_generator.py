@@ -1,5 +1,4 @@
 from copy import copy
-import numpy as np
 from typing import Optional
 
 from fretboard.chords import Chord, Voicing
@@ -104,7 +103,7 @@ class ChordGenerator:
         return voicings
 
     @staticmethod
-    def generate_e9_chords(key_as_str: str) -> dict[str, Chord]:
+    def generate_e9_chords(key_as_str: str, min_nb_notes: int = 0) -> dict[str, Chord]:
         """Return dict of e9 chords with associated voicings
 
         Returns:
@@ -116,6 +115,15 @@ class ChordGenerator:
         for key, value in CHORD_FORMULAS.items():
             chords[key] = Chord(key=key_as_str, type=key)
             chords[key].voicings = chord_generator.generate_voicings(value, key_as_str)
+
+            # filter out sparse voicings
+            to_delete = []
+            for i, voicing in enumerate(chords[key].voicings):
+                if voicing.get_number_of_notes() < min_nb_notes:
+                    to_delete.append(i)
+
+            for i in sorted(to_delete, reverse=True):
+                del chords[key].voicings[i]
 
         return chords
 

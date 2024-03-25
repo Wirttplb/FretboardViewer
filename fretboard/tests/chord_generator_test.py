@@ -2,6 +2,7 @@ import unittest
 import json
 from pathlib import Path
 
+from fretboard.chords import Chord
 from fretboard.chord_generator import ChordGenerator
 from fretboard.fretboard import Fretboard
 
@@ -15,12 +16,9 @@ class TestChordGenerator(unittest.TestCase):
         fretboard = Fretboard.init_as_guitar_open_e()
         path = Path("data/open_e_generated_chords.json")
 
-        with open(path, "w") as file:
-            json_dict = {}
-            json_dict["chords"] = []
-            for chord in chords.values():
-                json_dict["chords"].append(chord.to_json(fretboard.tuning))
+        json_dict = Chord.list_to_json(chords, fretboard.tuning)
 
+        with open(path, "w") as file:
             json.dump(json_dict, file)
 
     def test_e9_chord_generator(self):
@@ -57,14 +55,11 @@ class TestChordGenerator(unittest.TestCase):
 
         # Dump in json
         fretboard = Fretboard.init_as_pedal_steel_e9()
-        path = Path("data/e9_generated_chords.json")
+        path = Path("data/e9_all_generated_chords.json")
+
+        json_dict = Chord.list_to_json(chords, fretboard.tuning)
 
         with open(path, "w") as file:
-            json_dict = {}
-            json_dict["chords"] = []
-            for chord in chords.values():
-                json_dict["chords"].append(chord.to_json(fretboard.tuning))
-
             json.dump(json_dict, file)
 
         # Test content
@@ -99,6 +94,17 @@ class TestChordGenerator(unittest.TestCase):
                 if is_in_json:
                     break
             self.assertTrue(is_in_json)
+
+    def test_write_e9_chords_to_json(self):
+        chords = ChordGenerator.generate_e9_chords("E", min_nb_notes=6)
+        fretboard = Fretboard.init_as_pedal_steel_e9()
+        json_dict = Chord.list_to_json(chords, fretboard.tuning)
+        path = Path("data/e9_generated_chords.json")
+
+        with open(path, "w") as file:
+            json.dump(json_dict, file)
+
+        pass
 
 
 if __name__ == "__main__":
