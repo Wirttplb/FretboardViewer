@@ -28,11 +28,11 @@ CHORD_FORMULAS: dict[str, list[str]] = {
     "mm6": ["1", "b3", "5", "b6"],
     "mM6": ["1", "b3", "5", "6"],
     "M9": ["1", "3", "5", "7", "2"],
+    "m9": ["1", "b3", "5", "b7", "b2"],
     "9": ["1", "3", "5", "b7", "9"],
+    "mM9": ["1", "b3", "5", "b7", "2"],
     "7b9": ["1", "3", "5", "b7", "b2"],
     "7#9": ["1", "3", "5", "b7", "b3"],
-    "m9": ["1", "b3", "5", "b7", "b2"],
-    "mM9": ["1", "b3", "5", "b7", "2"],
     "b5b13": ["1", "3", "b5", "b6"],
     "11": ["1", "3", "5", "7", "2", "4"],
     "13": ["1", "3", "5", "7", "2", "4", "6"],
@@ -116,10 +116,12 @@ class ChordGenerator:
             chords[key] = Chord(key=key_as_str, type=key)
             chords[key].voicings = chord_generator.generate_voicings(value, key_as_str)
 
-            # filter out sparse voicings
+            # filter out sparse voicings and subsets of other voicings
             to_delete = []
             for i, voicing in enumerate(chords[key].voicings):
                 if voicing.get_number_of_notes() < min_nb_notes:
+                    to_delete.append(i)
+                elif voicing.is_part_of_other_voicings(chords[key].voicings):
                     to_delete.append(i)
 
             for i in sorted(to_delete, reverse=True):

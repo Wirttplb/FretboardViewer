@@ -1,7 +1,5 @@
 from __future__ import annotations
 from typing import Optional
-from pathlib import Path
-import json
 
 
 from fretboard.notes_utils import convert_int_interval_to_str, convert_str_note_to_int, MUTED_STRING_CHAR
@@ -33,6 +31,30 @@ class Voicing:
             if note is not None:
                 n += 1
         return n
+    
+    def is_part_of_other_voicing(self, other: Voicing) -> bool:
+        """Returns true if voicing is already a part of another voicing
+        """
+        for pedal in self.pedals:
+            if pedal not in other.pedals:
+                return False
+            
+        for i, note in enumerate(self.notes):
+            if note is not None and other.notes[i] is None:
+                return False
+            if note is not None and other.notes[i] is not None and note != other.notes[i]:
+                return False
+            
+        return True
+    
+    def is_part_of_other_voicings(self, others: list[Voicing]) -> bool:
+        for other in others:
+            if self != other and self.is_part_of_other_voicing(other):
+                return True
+            
+        return False
+            
+
 
 
 class Chord:
