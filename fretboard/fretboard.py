@@ -56,11 +56,9 @@ class Fretboard:
 
         return all_notes
 
-    def generate_major_scale_as_integers(self, key: str, start_fret: int, end_fret: int) -> list[list[Optional[int]]]:
-        """Generate major scale notes for given key ; a fretboard scale contains a string scale for each string (Optional ints)"""
+    def generate_scale_as_integers(self, key: str, intervals: list[int], start_fret: int, end_fret: int) -> list[list[Optional[int]]]:
         key_as_int = convert_str_note_to_int(key)
         fretboard = self.generate_fretboard(start_fret, end_fret)
-        intervals = [0, 2, 4, 5, 7, 9, 11]
 
         fretboard_scale = []
         for string_notes in fretboard:
@@ -72,6 +70,18 @@ class Fretboard:
             fretboard_scale.append(string_scale)
 
         return fretboard_scale
+
+    def generate_major_pentatonic_scale_as_integers(self, key: str, start_fret: int, end_fret: int) -> list[list[Optional[int]]]:
+        """Generate major pentatonic scale notes for given key ; a fretboard scale contains a string scale for each string (Optional ints)"""
+        intervals = [0, 2, 4, 7, 9]
+
+        return self.generate_scale_as_integers(key, intervals, start_fret, end_fret)
+
+    def generate_major_scale_as_integers(self, key: str, start_fret: int, end_fret: int) -> list[list[Optional[int]]]:
+        """Generate major scale notes for given key ; a fretboard scale contains a string scale for each string (Optional ints)"""
+        intervals = [0, 2, 4, 5, 7, 9, 11]
+
+        return self.generate_scale_as_integers(key, intervals, start_fret, end_fret)
 
     def generate_major_scale_as_intervals(self, key: str, start_fret: int, end_fret: int) -> list[list[Optional[str]]]:
         fretboard_scale: list[Any] = self.generate_major_scale_as_integers(key, start_fret, end_fret)
@@ -145,7 +155,7 @@ class Fretboard:
                                 if change[0] == i_string:
                                     actual_note += change[1]
 
-                    interval = (actual_note - key_as_int) % 12 + 1
+                    interval = ((actual_note - key_as_int)) % 12
                     string_scale[i_fret] = convert_int_interval_to_str(interval)
 
         return fretboard_scale_as_intervals

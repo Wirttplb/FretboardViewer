@@ -10,8 +10,8 @@ app = Flask(__name__)
 # fretboard = Fretboard.init_as_guitar_standard()
 # fretboard = Fretboard.init_as_guitar_open_e()
 
-e9_chords_json_file = Path("data/E9_Chords.json")
-e9_chords = import_e9_chords_from_json(e9_chords_json_file)
+# e9_chords_json_file = Path("data/E9_Chords.json")
+# e9_chords = import_e9_chords_from_json(e9_chords_json_file)
 
 fretboard = Fretboard.init_as_pedal_steel_e9()
 keys: list[str] = convert_int_notes_to_str([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], as_sharps=True)
@@ -21,12 +21,15 @@ initial_key = "E"
 def generate_scale(key: str):
     start_fret = 0
     end_fret = 12
-    # fretboard_data = fretboard.generate_major_scale_as_integers(key, start_fret, end_fret)
-    chord_nb = 5
-    voicing_nb = 1
-    fretboard_data = fretboard.generate_voicing(e9_chords[chord_nb].voicings[voicing_nb])
-    pedals_to_apply = [Pedal.init_from_name(pedal) for pedal in e9_chords[chord_nb].voicings[voicing_nb].pedals]
-    pedals_as_str = e9_chords[chord_nb].voicings[voicing_nb].pedals
+    fretboard_data = fretboard.generate_major_pentatonic_scale_as_integers(key, start_fret, end_fret)
+    pedals_as_str = ""
+    pedals_to_apply = None
+
+    # chord_nb = 5
+    # voicing_nb = 1
+    # fretboard_data = fretboard.generate_voicing(e9_chords[chord_nb].voicings[voicing_nb])
+    # pedals_to_apply = [Pedal.init_from_name(pedal) for pedal in e9_chords[chord_nb].voicings[voicing_nb].pedals]
+    # pedals_as_str = e9_chords[chord_nb].voicings[voicing_nb].pedals
 
     fretboard_data = fretboard.convert_fretboard_scale_to_intervals(key, fretboard_data, pedals_to_apply)
 

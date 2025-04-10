@@ -10,6 +10,8 @@ Capacitor
 Or even better, a Progressive Web App?
 https://web.dev/articles/what-are-pwas
 
+Or even better, Godot and build a cross platform app? Or even export to web app.
+
 //////////////////////////
 Features:
 
