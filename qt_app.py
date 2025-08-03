@@ -1,12 +1,16 @@
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QSizePolicy, QGraphicsBlurEffect, QLabel
-from PySide6.QtGui import QPainter, QColor, QPen, QFont, QPixmap, QImage
+from math import ceil
+
+from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QComboBox
+from PySide6.QtGui import QPainter, QColor, QPen, QFont
 from PySide6.QtCore import Qt, QRect, QPointF
 import sys
 
 from fretboard.fretboard import *
+from fretboard.notes_utils import convert_int_note_to_str
 
 # Static objects
 initial_key = "E"
+keys: list[str] = convert_int_notes_to_str([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], as_sharps=True)
 fretboard = Fretboard.init_as_pedal_steel_e9()
 tuning = fretboard.get_tuning_as_str()
 num_strings = len(tuning)
@@ -23,24 +27,23 @@ def generate_scale(key: str):
     return fretboard_data
 
 
-fretboard_data = generate_scale(initial_key)
-
-
 class FretboardWidget(QWidget):
 
     num_strings: int = 10
     string_spacing: float = 0
     num_frets: int = 12 + 1  # include zero fret
+    fretboard_data = None
 
     def __init__(self, parent=None, num_strings=10):
         super().__init__(parent)
         self.num_strings = num_strings
+        self.fretboard_data = generate_scale(initial_key)
 
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         self.drawFretboard(painter, tuning)
-        self.drawNotes(painter, fretboard_data)
+        self.drawNotes(painter, self.fretboard_data)
 
     def get_fret_spacing(self) -> float:
         return self.width() / (self.num_frets + 1 - 1)
@@ -114,7 +117,8 @@ class FretboardWidget(QWidget):
             painter.drawLine(0, y + pen1.width() / 2, width, y + pen1.width() / 2)
 
         # Draw open notes
-        font = QFont("Arial", 26)
+        fontSize: int = ceil(0.0283 * height)
+        font = QFont("Arial", fontSize)
         painter.setFont(font)
         pen = QPen(QColor("white"))
         painter.setPen(pen)
@@ -127,6 +131,7 @@ class FretboardWidget(QWidget):
         height = self.height()
         shadow_offset = QPointF(width * 0.0005, height * 0.005)
         dotRadius = width / 80
+        fontSize: int = ceil(height * 0.0326)
 
         for string_i, string_data in enumerate(reversed(fretboard_data)):
             for note_i, string_note in enumerate(string_data):
@@ -150,7 +155,7 @@ class FretboardWidget(QWidget):
                     painter.drawEllipse(QPointF(x, y), dotRadius, dotRadius)
 
                     # str
-                    font = QFont("Tahoma", 30)
+                    font = QFont("Tahoma", fontSize)  # 30
                     font.setBold(True)
                     painter.setFont(font)
                     pen = QPen(QColor("black"))
@@ -168,16 +173,53 @@ class MainWindow(QMainWindow):
 
         # Central widget
         central_widget = QWidget()
-        layout = QVBoxLayout(central_widget)
-        layout.setContentsMargins(0, 0, 0, 0)  # Remove outer margins
-        layout.setSpacing(0)  # Remove spacing between widgets
+        main_layout = QVBoxLayout(central_widget)
+        main_layout.setContentsMargins(0, 0, 0, 0)  # Remove outer margins
+        main_layout.setSpacing(0)  # Remove spacing between widgets
+        self.setCentralWidget(central_widget)
 
         # Add fretboard
         self.fretboard = FretboardWidget(None, num_strings)
         self.fretboard.setFixedHeight(int(self.height() * 0.85))
-        layout.addWidget(self.fretboard)
+        main_layout.addWidget(self.fretboard)
 
-        self.setCentralWidget(central_widget)
+        # Bottom layout
+        bottom_bar = QWidget()
+        bottom_layout = QHBoxLayout(bottom_bar)
+        bottom_layout.setContentsMargins(10, 10, 10, 10)
+        bottom_layout.setSpacing(20)  # Space between dropdowns
+        bottom_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+
+        # Dropdown buttons
+        fontSize: int = ceil(self.height() * 0.0326)
+        font = QFont("Arial", fontSize)
+        font.setBold(True)
+        self.dropdown = QComboBox()
+        self.dropdown.addItems(keys)
+        self.dropdown.setFixedSize(int(self.width() * 0.05), int(self.height() * 0.05))
+        self.dropdown.setFont(font)
+        self.dropdown.setCurrentIndex(keys.index(initial_key))
+        self.dropdown.currentIndexChanged.connect(lambda index: self.on_key_change(index))
+        bottom_layout.addWidget(self.dropdown)
+
+        self.dropdown2 = QComboBox()
+        self.dropdown2.addItems(["Major", "Pentatonic Major"])
+        self.dropdown2.setFixedSize(int(self.width() * 0.25), int(self.height() * 0.05))
+        self.dropdown2.setFont(font)
+        self.dropdown2.setCurrentIndex(0)
+        self.dropdown2.currentIndexChanged.connect(self.on_mode_change)
+        bottom_layout.addWidget(self.dropdown2)
+
+        main_layout.addWidget(bottom_bar)
+
+    def on_key_change(self, key_index: int):
+        key = convert_int_note_to_str(key_index, True)
+        self.fretboard.fretboard_data = generate_scale(key)
+        self.update()
+        return
+
+    def on_mode_change(self):
+        return
 
 
 if __name__ == "__main__":
