@@ -19,10 +19,7 @@ num_strings = len(tuning)
 def generate_scale(key: str):
     start_fret = 0
     end_fret = 12
-    fretboard_data = fretboard.generate_major_scale_as_integers(key, start_fret, end_fret)
-
-    pedals_to_apply = None
-    fretboard_data = fretboard.convert_fretboard_scale_to_intervals(key, fretboard_data, pedals_to_apply)
+    fretboard_data = fretboard.generate_major_scale_as_intervals(key, start_fret, end_fret)
 
     return fretboard_data
 

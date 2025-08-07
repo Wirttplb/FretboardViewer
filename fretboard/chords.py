@@ -31,30 +31,27 @@ class Voicing:
             if note is not None:
                 n += 1
         return n
-    
+
     def is_part_of_other_voicing(self, other: Voicing) -> bool:
-        """Returns true if voicing is already a part of another voicing
-        """
+        """Returns true if voicing is already a part of another voicing"""
         for pedal in self.pedals:
             if pedal not in other.pedals:
                 return False
-            
+
         for i, note in enumerate(self.notes):
             if note is not None and other.notes[i] is None:
                 return False
             if note is not None and other.notes[i] is not None and note != other.notes[i]:
                 return False
-            
+
         return True
-    
+
     def is_part_of_other_voicings(self, others: list[Voicing]) -> bool:
         for other in others:
             if self != other and self.is_part_of_other_voicing(other):
                 return True
-            
-        return False
-            
 
+        return False
 
 
 class Chord:

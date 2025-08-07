@@ -85,9 +85,9 @@ class TestChordGenerator(unittest.TestCase):
                 if "M" == chord["name"]:
                     for voicing in chord["voicings"]:
                         if (
-                            (voicing["notes"] == [3, "x", 3, "x", 3, 3, 3, 3, "x", "x"])
-                            and (voicing["intervals"] == ["1", "x", "3", "x", "5", "1", "3", "5", "x", "x"])
-                            and (voicing["pedals"] == ["A", "F"])
+                            (voicing["notes"] == [3, 3, 3, "x", 3, 3, 3, 3, 3, "x"])
+                            and (voicing["intervals"] == ["1", "1", "3", "x", "5", "1", "3", "5", "1", "x"])
+                            and (voicing["pedals"] == ["A", "F", "D"])
                         ):
                             is_in_json = True
                             break
